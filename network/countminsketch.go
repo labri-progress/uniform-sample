@@ -67,11 +67,7 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 		case true:
 			sample_choice_index := cmsRand.Intn(C) //uniform random choice
 			//k := Sample_memory[sample_choice_index]
-
 			Sample_memory[sample_choice_index] = peer // replace k by peer j
-
-		case false:
-
 		}
 	}
 	output_choice_index := cmsRand.Intn(len(Sample_memory)) //uniform random choice
