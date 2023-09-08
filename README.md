@@ -1,6 +1,8 @@
 # Uniform Node Sampling Service Robust against Collusions of Malicious Nodes Implementation
 
-[paper](https://hal.science/hal-00804430/document)
+* [paper](https://hal.science/hal-00804430/document)
+* Knowledge Free algorithm : test.go : test_Knowledge_free()
+* Omniscient strategy : test.go : test_omniscient()
 
 ## 1- Steps to get the data
 * We downloaded and unziped the first [dataset](https://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html)

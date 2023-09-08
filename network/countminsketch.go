@@ -68,18 +68,7 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 			sample_choice_index := cmsRand.Intn(C) //uniform random choice
 			//k := Sample_memory[sample_choice_index]
 
-			new_sample_memory := []string{}
-			for i, elmt := range Sample_memory {
-				if i != sample_choice_index {
-					new_sample_memory = append(new_sample_memory, elmt) // remove k
-				}
-			}
-			if len(new_sample_memory) != C-1 {
-				log.Panic("new sample memory of length ", len(new_sample_memory))
-			}
-			new_sample_memory = append(new_sample_memory, peer) // add j
-
-			Sample_memory = new_sample_memory
+			Sample_memory[sample_choice_index] = peer // replace k by peer j
 
 		case false:
 
