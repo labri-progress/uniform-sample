@@ -63,8 +63,7 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 		prob := float64(min) / float64(freq) // aj <= 1
 		choice := cmsRand.Float64()          // random choice in [0.0, 1.0[
 
-		switch choice < prob {
-		case true:
+		if choice < prob {
 			sample_choice_index := cmsRand.Intn(C) //uniform random choice
 			//k := Sample_memory[sample_choice_index]
 			Sample_memory[sample_choice_index] = peer // replace k by peer j
