@@ -1,10 +1,7 @@
-
-#install.packages('LaplacesDemon')
+args = commandArgs(trailingOnly=TRUE)
 
 library(stringr)
 library(dplyr)
-library(philentropy)
-library(LaplacesDemon)
 
 divergence <- function(path) {
     print(paste("The data to analyze is", path))
@@ -30,11 +27,30 @@ divergence <- function(path) {
     print(paste("The KL divergence is ", sum))
     return(sum)
 }
-d1 <- divergence("data/resultJul95")
+dKL <- function(args){
+    expe= args[1]
+    path= args[2]
+    parameters = args[3]
+    
+    d2 <- divergence(path)
+    
+    filename = paste("result/", parameters, sep="")
+    filename
+    file.info(filename)$size
+    if (!file.exists(filename)) {
+        head <- "Expe dKL"
+        write(head, append=TRUE, file = filename)
+    }
+    separator = "        "
+    
+    sol = paste(expe, d2, sep = separator)
+    print(sol)
+    write(sol, append=TRUE, file = filename)
+}
+#d1 <- divergence("data/resultJul95")
 "---------------------"
 "---------------------"
-d2 <- divergence("data/output")
+#d2 <- divergence("data/output")
 
-G = 1 - d2/d1
-print(paste("The Gain is ", G))
-
+#G = 1 - d2/d1
+#print(paste("The Gain is ", G))

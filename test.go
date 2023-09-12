@@ -7,6 +7,7 @@ import (
 	"math"
 	"network"
 	"os"
+	"strconv"
 )
 
 func test() {
@@ -105,8 +106,8 @@ func test_Knowledge_free() {
 	n := network.Read_occurence(listpeers)
 	/* CMS Parameters */
 
-	k := int(math.Ceil(0.01 * float64(n))) // other test to do
-	//k := int(math.Ceil(math.Log(float64(n)))) // round to the next integer
+	//k := int(math.Ceil(0.01 * float64(n))) // other test to do
+	k := int(math.Ceil(math.Log(float64(n)))) // round to the next integer
 	s := 10
 	network.C = k
 
@@ -128,7 +129,7 @@ func test_Knowledge_free() {
 	fmt.Printf("A matrix of size %d*%d with sample memory length of %d\n Output of size %d\n",
 		s, k, len(network.Sample_memory), len(output))
 
-	out_path := "data/output" // path of the unbiaised output stream
+	out_path := "data/output" + strconv.Itoa(num_expe) // path of the unbiaised output stream
 	err = writeLines(output, out_path)
 	if err != nil {
 		log.Println("(Write) Unable to read config file ", out_path)
@@ -160,7 +161,7 @@ func test_omniscient() {
 		//fmt.Println("output", output)
 	}
 
-	out_path := "data/output"
+	out_path := "data/output" + strconv.Itoa(num_expe)
 	err = writeLines(output, out_path)
 	if err != nil {
 		log.Println("(Write) Unable to read config file ", out_path)

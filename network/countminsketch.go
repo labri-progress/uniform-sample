@@ -70,7 +70,6 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 
 		if choice < prob {
 			sample_choice_index := cmsRand.Intn(C) //uniform random choice
-			//Sample_memory[sample_choice_index] = peer // replace k by peer j
 			if !in_memory[peer] {
 				Sample_memory[sample_choice_index] = peer // add j
 				in_memory[peer] = true
