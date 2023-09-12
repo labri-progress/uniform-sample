@@ -7,9 +7,11 @@ func main() {
 	flag.Parse()
 	switch *number {
 	case 0:
-		test_Knowledge_free()
+		test0()
 	case 1:
 		test_omniscient()
+	case 2:
+		test_Knowledge_free()
 	default:
 		panic("Wrong number")
 	}

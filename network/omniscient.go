@@ -2,7 +2,6 @@ package network
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"time"
 )
@@ -43,7 +42,10 @@ func (cms *CMS) Omniscient(peer string) (output_choice string) {
 		rand.NewSource(time.Now().UnixNano())) /* RNG generator */
 
 	if len(Sample_memory) < C {
-		Sample_memory = append(Sample_memory, peer) // add j
+		if !in_memory[peer] {
+			Sample_memory = append(Sample_memory, peer) // add j
+			in_memory[peer] = true
+		}
 	} else {
 		min := occ_min          // min
 		freq := occurence[peer] // pj
@@ -51,27 +53,13 @@ func (cms *CMS) Omniscient(peer string) (output_choice string) {
 		prob := float64(min) / float64(freq) // aj <= 1
 		choice := cmsRand.Float64()          // random choice in [0.0, 1.0[
 
-		switch choice < prob {
-		case true:
-
+		if choice < prob {
 			sample_choice_index := cmsRand.Intn(C) //uniform random choice
-			//k := Sample_memory[sample_choice_index]
-
-			new_sample_memory := []string{}
-			for i, elmt := range Sample_memory {
-				if i != sample_choice_index {
-					new_sample_memory = append(new_sample_memory, elmt) // remove k
-				}
+			//Sample_memory[sample_choice_index] = peer // replace k by peer j
+			if !in_memory[peer] {
+				Sample_memory[sample_choice_index] = peer // add j
+				in_memory[peer] = true
 			}
-			if len(new_sample_memory) != C-1 {
-				log.Panic("new sample memory of length ", len(new_sample_memory))
-			}
-			new_sample_memory = append(new_sample_memory, peer) // add j
-
-			Sample_memory = new_sample_memory
-
-		case false:
-
 		}
 	}
 	output_choice_index := cmsRand.Intn(len(Sample_memory)) //uniform random choice

@@ -20,6 +20,7 @@ type CMS struct {
 
 var PeerCMS *CMS
 var Sample_memory = []string{}
+var in_memory = make(map[string]bool)
 var C int
 
 func InitCMS(d uint, w uint) (cms *CMS) {
@@ -52,7 +53,11 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 		rand.NewSource(time.Now().UnixNano())) /* RNG generator */
 
 	if len(Sample_memory) < C {
-		Sample_memory = append(Sample_memory, peer) // add j
+		if !in_memory[peer] {
+			Sample_memory = append(Sample_memory, peer) // add j
+			in_memory[peer] = true
+		}
+
 	} else {
 		freq := PeerCMS.EstimateString(peer)
 		if freq == 0 {
@@ -65,8 +70,11 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 
 		if choice < prob {
 			sample_choice_index := cmsRand.Intn(C) //uniform random choice
-			//k := Sample_memory[sample_choice_index]
-			Sample_memory[sample_choice_index] = peer // replace k by peer j
+			//Sample_memory[sample_choice_index] = peer // replace k by peer j
+			if !in_memory[peer] {
+				Sample_memory[sample_choice_index] = peer // add j
+				in_memory[peer] = true
+			}
 		}
 	}
 	output_choice_index := cmsRand.Intn(len(Sample_memory)) //uniform random choice
@@ -142,7 +150,12 @@ func (s *CMS) Locations(key []byte) (locs []uint) {
 // Update the frequency of a key
 func (s *CMS) Update(key []byte, count uint64) {
 	for r, c := range s.Locations(key) {
-		s.mat[r][c] += count
+		val := uint64((s.mat[r][c] + count) / 2) /* MOY */
+		if val < 1 {
+			s.mat[r][c] = 1
+		} else {
+			s.mat[r][c] = val
+		}
 	}
 }
 
