@@ -54,7 +54,7 @@ func test0() {
 	w := 40
 	network.C = 10 //int(d)
 	network.PeerCMS = network.InitCMS(uint(d), uint(w))
-	fmt.Println(network.PeerCMS.MatToString())
+	//fmt.Println(network.PeerCMS.MatToString())
 
 	//network.Sample_memory = make([]string, network.C)
 	//var listpeers = []string{"A", "B", "A", "A", "K", "S", "S", "B", "C", "A", "B", "K"}
@@ -68,14 +68,14 @@ func test0() {
 		println(">>>>>>>>>>>>> ELEMENT", i+1, " ", elm)
 		//fmt.Println("output", output)
 
-		/* network.PeerCMS.UpdateString(elm, 1)
+		network.PeerCMS.UpdateString(elm, 1)
 		//fmt.Println(network.PeerCMS.MatToString())
 
 		value := network.PeerCMS.Knowledge_free(elm)
-		output = append(output, value) */
-		value := network.PeerCMS.Omniscient(elm)
+		/* output = append(output, value)
+		value := network.PeerCMS.Omniscient(elm) */
 		output = append(output, value)
-		fmt.Println("Memory", network.Sample_memory)
+		fmt.Println("Value: ", value)
 		//fmt.Println("output", output)
 	}
 	fmt.Println("*******************output", output)
@@ -93,7 +93,7 @@ func test0() {
 
 func test_Knowledge_free() {
 
-	path := "data/resultJul95"
+	path := input_path
 	var listpeers, err = readLines(path)
 	if err != nil {
 		log.Println("(check) Unable to read config file ", path)
@@ -109,9 +109,11 @@ func test_Knowledge_free() {
 	//k := int(math.Ceil(0.01 * float64(n))) // other test to do
 	k := int(math.Ceil(math.Log(float64(n)))) // round to the next integer
 	s := 10
-	network.C = k
+	network.C = 300
 
 	network.PeerCMS = network.InitCMS(uint(s), uint(k))
+
+	fmt.Println(network.PeerCMS.MatToString())
 
 	/*  Knowledge free algorithm */
 	var output = []string{}
@@ -124,7 +126,7 @@ func test_Knowledge_free() {
 		output = append(output, value)
 
 	}
-
+	fmt.Println(network.PeerCMS.MatToString())
 	/* summary */
 	fmt.Printf("A matrix of size %d*%d with sample memory length of %d\n Output of size %d\n",
 		s, k, len(network.Sample_memory), len(output))
@@ -143,7 +145,7 @@ func test_omniscient() {
 
 	network.C = 300
 
-	path := "data/resultJul95"
+	path := input_path
 	var listpeers, err = readLines(path)
 	if err != nil {
 		log.Println("(check) Unable to read config file ", path)
@@ -198,4 +200,56 @@ func writeLines(lines []string, path string) error {
 		fmt.Fprintln(w, line)
 	}
 	return w.Flush()
+}
+
+func check_cms() {
+
+	path := input_path
+	var listpeers, err = readLines(path)
+	if err != nil {
+		log.Println("(check) Unable to read config file ", path)
+		return
+	}
+
+	m := len(listpeers)
+
+	n := network.Read_occurence(listpeers)
+	log.Println("Input of size ", m, "With ", n, "distinct elements")
+	/* CMS Parameters */
+
+	k := int(math.Ceil(0.01 * float64(n))) // other test to do
+	//k := int(math.Ceil(math.Log(float64(n)))) // round to the next integer
+	s := 1000
+
+	network.PeerCMS = network.InitCMS(uint(s), uint(k))
+
+	fmt.Println(network.PeerCMS.MatToString())
+	//t := 5000
+	for _, elm := range listpeers {
+		//println(">elmt", i)
+		network.PeerCMS.UpdateString(elm, 1)
+
+	}
+	fmt.Println("summary(listpeers)")
+	var allelmt = make(map[string]uint64)
+
+	for _, elmt := range listpeers {
+		if _, ok := allelmt[elmt]; ok {
+			allelmt[elmt] = allelmt[elmt] + 1
+		} else {
+			allelmt[elmt] = 1
+		}
+	}
+	fmt.Println(allelmt)
+
+	//fmt.Println(network.PeerCMS.MatToString())
+	fmt.Println("CHECK")
+	for elm, occ := range allelmt {
+		freq := network.PeerCMS.EstimateString(elm)
+		val := occ - freq
+		fmt.Printf("%d ", val)
+
+	}
+
+	return
 }

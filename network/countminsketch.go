@@ -71,6 +71,8 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 		if choice < prob {
 			sample_choice_index := cmsRand.Intn(C) //uniform random choice
 			if !in_memory[peer] {
+				k := Sample_memory[sample_choice_index]
+				delete(in_memory, k)
 				Sample_memory[sample_choice_index] = peer // add j
 				in_memory[peer] = true
 			}
@@ -78,7 +80,7 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 	}
 	output_choice_index := cmsRand.Intn(len(Sample_memory)) //uniform random choice
 	output_choice = Sample_memory[output_choice_index]      // k'
-
+	//fmt.Printf("Sample memory : %v \n in_memory: %v\n", Sample_memory, in_memory)
 	return
 }
 
@@ -120,18 +122,6 @@ func (s *CMS) BaseHashes(key []byte) (a uint32, b uint32) {
 	return
 }
 
-// get the two basic hash function values for data.
-func (s *CMS) BaseHashesOriginal(key []byte) (a uint32, b uint32) {
-	s.hasher.Reset()
-	s.hasher.Write(key)
-	sum := s.hasher.Sum(nil)
-	upper := sum[0:4]
-	lower := sum[4:8]
-	a = binary.BigEndian.Uint32(lower)
-	b = binary.BigEndian.Uint32(upper)
-	return
-}
-
 // Get the _w_ locations to update/Estimate
 func (s *CMS) Locations(key []byte) (locs []uint) {
 	locs = make([]uint, s.s)
@@ -149,12 +139,7 @@ func (s *CMS) Locations(key []byte) (locs []uint) {
 // Update the frequency of a key
 func (s *CMS) Update(key []byte, count uint64) {
 	for r, c := range s.Locations(key) {
-		val := uint64((s.mat[r][c] + count) / 2) /* MOY */
-		if val < 1 {
-			s.mat[r][c] = 1
-		} else {
-			s.mat[r][c] = val
-		}
+		s.mat[r][c] += count
 	}
 }
 
