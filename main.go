@@ -15,12 +15,13 @@ func main() {
 	input_path = *path
 	switch *number {
 	case 0:
-		//test0()
-		check_cms()
+		test0()
+		//check_cms()
 	case 1:
 		test_omniscient()
 	case 2:
-		test_Knowledge_free()
+		//test_Knowledge_free()
+		test_Knowledge_free_with_small_set()
 	default:
 		panic("Wrong number")
 	}

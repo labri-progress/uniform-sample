@@ -52,7 +52,7 @@ func test0() {
 
 	d := 50
 	w := 40
-	network.C = 10 //int(d)
+	network.C = 4 //int(d)
 	network.PeerCMS = network.InitCMS(uint(d), uint(w))
 	//fmt.Println(network.PeerCMS.MatToString())
 
@@ -62,7 +62,7 @@ func test0() {
 	//var listpeers = []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}
 
 	var output = []string{}
-	fmt.Println("Memory", network.Sample_memory)
+	fmt.Println("Memory", network.Sample_memory, network.C)
 
 	for i, elm := range listpeers {
 		println(">>>>>>>>>>>>> ELEMENT", i+1, " ", elm)
@@ -106,8 +106,8 @@ func test_Knowledge_free() {
 	n := network.Read_occurence(listpeers)
 	/* CMS Parameters */
 
-	//k := int(math.Ceil(0.01 * float64(n))) // other test to do
-	k := int(math.Ceil(math.Log(float64(n)))) // round to the next integer
+	k := int(math.Ceil(0.01 * float64(n))) // other test to do
+	//k := int(math.Ceil(math.Log(float64(n)))) // round to the next integer
 	s := 10
 	network.C = 300
 
@@ -249,6 +249,64 @@ func check_cms() {
 		val := occ - freq
 		fmt.Printf("%d ", val)
 
+	}
+
+	return
+}
+
+func test_Knowledge_free_with_small_set() {
+
+	path := input_path
+	var listpeers, err = readLines(path)
+	if err != nil {
+		log.Println("(check) Unable to read config file ", path)
+		return
+	}
+
+	m := len(listpeers)
+	log.Println("Input of size ", m)
+
+	n := network.Read_occurence(listpeers)
+	/* CMS Parameters */
+
+	k := int(math.Ceil(0.01 * float64(n))) // other test to do
+	//k := int(math.Ceil(math.Log(float64(n)))) // round to the next integer
+	s := 10
+	network.C = 300
+
+	network.PeerCMS = network.InitCMS(uint(s), uint(k))
+
+	fmt.Println(network.PeerCMS.MatToString())
+
+	/*  Knowledge free algorithm */
+	var output = []string{}
+	trunk := 1000
+	train := 100000
+	begin := m - trunk - train
+	fmt.Printf("Read %d elements between from element %d \n", trunk, begin)
+	for _, elm := range listpeers[begin : m-trunk] {
+		//println(">elmt", i)
+		network.PeerCMS.UpdateString(elm, 1)
+
+	}
+	for _, elm := range listpeers[m-trunk:] { //only trunk elements in the output
+		//println(">elmt", i)
+		network.PeerCMS.UpdateString(elm, 1)
+
+		value := network.PeerCMS.Knowledge_free(elm)
+		output = append(output, value)
+
+	}
+	fmt.Println(network.PeerCMS.MatToString())
+	/* summary */
+	fmt.Printf("A matrix of size %d*%d with sample memory length of %d\n Output of size %d\n",
+		s, k, len(network.Sample_memory), len(output))
+
+	out_path := "data/output" + strconv.Itoa(num_expe) // path of the unbiaised output stream
+	err = writeLines(output, out_path)
+	if err != nil {
+		log.Println("(Write) Unable to read config file ", out_path)
+		return
 	}
 
 	return

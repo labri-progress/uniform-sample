@@ -6,7 +6,7 @@ p="data/resultJul95"
 #p="data/resultess_1"
 for i in 2
 do
-    for j in {1..2}
+    for j in {3..5}
     do
         ./main -t=$i -n=$j -p=$p
     done

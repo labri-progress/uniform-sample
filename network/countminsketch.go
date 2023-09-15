@@ -48,6 +48,17 @@ func (cms *CMS) getMinMatrix() (min uint64) {
 	return
 }
 
+func getMinFreq() (min uint64) {
+	min = 0
+	for i := range in_memory {
+		freq := PeerCMS.EstimateString(i)
+		if freq < min || min == 0 {
+			min = freq
+		}
+	}
+	return
+}
+
 func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 	var cmsRand = rand.New(
 		rand.NewSource(time.Now().UnixNano())) /* RNG generator */
@@ -59,25 +70,34 @@ func (cms *CMS) Knowledge_free(peer string) (output_choice string) {
 		}
 
 	} else {
-		freq := PeerCMS.EstimateString(peer)
-		if freq == 0 {
-			log.Panicf("Element %s has not been registered yet !!!\n", peer)
-		}
-		min := cms.getMinMatrix()
 
-		prob := float64(min) / float64(freq) // aj <= 1
-		choice := cmsRand.Float64()          // random choice in [0.0, 1.0[
-
-		if choice < prob {
-			sample_choice_index := cmsRand.Intn(C) //uniform random choice
-			if !in_memory[peer] {
-				k := Sample_memory[sample_choice_index]
-				delete(in_memory, k)
-				Sample_memory[sample_choice_index] = peer // add j
-				in_memory[peer] = true
+		var prob float64
+		if !in_memory[peer] {
+			prob = 1.0
+		} else {
+			//min := cms.getMinMatrix()
+			min := getMinFreq()
+			freq := PeerCMS.EstimateString(peer)
+			if freq == 0 {
+				log.Panicf("Element %s has not been registered yet !!!\n", peer)
 			}
+			prob = float64(min) / float64(freq) // aj <= 1
+			//fmt.Println("min", min, "prob", prob)
+		}
+
+		choice := cmsRand.Float64() // random choice in [0.0, 1.0[
+		//fmt.Println("choice", choice)
+		if choice < prob && !in_memory[peer] { // try to add only not known elements
+
+			sample_choice_index := cmsRand.Intn(C) //uniform random choice
+			k := Sample_memory[sample_choice_index]
+			delete(in_memory, k)
+			Sample_memory[sample_choice_index] = peer // add j
+			in_memory[peer] = true
+			//fmt.Println("change", k, peer)
 		}
 	}
+	//fmt.Println("Memory", Sample_memory)
 	output_choice_index := cmsRand.Intn(len(Sample_memory)) //uniform random choice
 	output_choice = Sample_memory[output_choice_index]      // k'
 	//fmt.Printf("Sample memory : %v \n in_memory: %v\n", Sample_memory, in_memory)
@@ -170,18 +190,19 @@ func (s *CMS) Merge(other *CMS) error {
 		return errors.New("countminsketch: matrix depth must match")
 	}
 
-	if s.k != other.s {
+	if s.k != other.k {
 		return errors.New("countminsketch: matrix width must match")
 	}
 
 	for i := uint(0); i < s.s; i++ {
 		for j := uint(0); j < s.k; j++ {
 			// s.mat[i][j] += other.mat[i][j] ADD
-			val := uint64((s.mat[i][j] + other.mat[i][j]) / 2) /* MOY */
-			if val < 1 {
+			var val float64
+			val = (float64(s.mat[i][j]) + float64(other.mat[i][j])) / 2 /* MOY */
+			if 0.0 < val && val < 1.0 {
 				s.mat[i][j] = 1
 			} else {
-				s.mat[i][j] = val
+				s.mat[i][j] = uint64(val)
 			}
 		}
 	}

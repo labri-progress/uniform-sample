@@ -2,8 +2,9 @@ source("/home/amukam/thss/experiments/uniform-sample/dkl.r")
 
 experiment =  "KL1"
 "--------------------------"
-times <- 2
-for (i in 1:times){
+d1 <- divergence("data/resultJul95trunk")
+times <- 5
+for (i in 3:times){
     output = paste("data/output", i, sep="")
     dKL(c(i, output, experiment))
 }
